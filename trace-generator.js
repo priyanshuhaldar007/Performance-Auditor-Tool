@@ -4,6 +4,20 @@ async function generateTraceReport(url, outputPath) {
     const browser = await puppeteer.launch();
     const page = await browser.newPage();
 
+    const client = await page.createCDPSession();
+    await client.send("Network.enable");
+    // Simulated network throttling (Slow 3G)
+    await client.send("Network.emulateNetworkConditions", {
+        // Network connectivity is absent
+        offline: false,
+        // Download speed (bytes/s)
+        downloadThroughput: ((500 * 1024) / 8) * 0.8,
+        // Upload speed (bytes/s)
+        uploadThroughput: ((500 * 1024) / 8) * 0.8,
+        // Latency (ms)
+        latency: 400 * 5,
+    });
+    await client.send("Emulation.setCPUThrottlingRate", { rate: 4 });
 
     // Enable Chrome DevTools Performance Monitoring
     await page.tracing.start({ path: outputPath });

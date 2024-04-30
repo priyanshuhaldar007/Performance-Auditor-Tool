@@ -10,6 +10,8 @@ const runPerformanceCheck = async (url) => {
   const page = await browser.newPage();
   await page.goto(url);
 
+  saveScripts(page);
+
   const lighthouseOptions = {
     port: (new URL(browser.wsEndpoint())).port,
     throttling: {
@@ -48,6 +50,31 @@ const main = async () => {
   } catch (error) {
     console.error('An error occurred:', error);
   }
+};
+
+const saveScripts = async (page, outputFile = "scraped_scripts.json") => {
+    // Get all script tags and their innerHTML (content)
+    const scripts = await page.evaluate(() => {
+        const scripts = Array.from(document.querySelectorAll('script'));
+        // let syncScripts=[]
+        return scripts.map((script,index) =>{
+            let key = script.getAttribute('src');
+            key = null === key ? `inline-${index}` : `network-request-${index}`;
+            if(script.getAttribute('defer')===null || script.getAttribute('async') === null){
+                return {'scriptSrc':script.getAttribute('src'), 'scriptType':key,'scriptContents':script.innerHTML };
+            }
+        });
+        // return syncScripts;
+    });
+
+    // const scripts = await page.evaluate(() => {
+    //     const scripts = Array.from(document.querySelectorAll('script'));
+    //     return scripts.map((script) => script.innerHTML);
+    //   });
+
+    // Save scraped scripts to JSON file
+    await writeFile(outputFile, JSON.stringify(scripts, null, 2));
+    console.log(`Scripts scraped and saved to: ${outputFile}`);
 };
 
 main();

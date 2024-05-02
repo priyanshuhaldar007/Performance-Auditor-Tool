@@ -1,1 +1,4 @@
 node_modules
+./results/*
+./views/lighthouse-report.html
+.DS_Store

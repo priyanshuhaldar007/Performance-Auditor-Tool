@@ -4,6 +4,7 @@ async function generateTraceReport(url, outputPath) {
     const browser = await puppeteer.launch();
     const page = await browser.newPage();
 
+    // For throttling CPU and Network before generating trace report
     const client = await page.createCDPSession();
     await client.send("Network.enable");
     // Simulated network throttling (Slow 3G)
@@ -20,7 +21,7 @@ async function generateTraceReport(url, outputPath) {
     await client.send("Emulation.setCPUThrottlingRate", { rate: 4 });
 
     // Enable Chrome DevTools Performance Monitoring
-    await page.tracing.start({ path: outputPath });
+    await page.tracing.start({ path: outputPath, screenshots: true });
 
     // Navigate to the website
     await page.goto(url);

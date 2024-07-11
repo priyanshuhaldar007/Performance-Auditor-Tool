@@ -8,6 +8,7 @@ import { URL } from "url";
 import { writeFile } from "fs/promises";
 import { generateReport } from "lighthouse";
 import { generateTraceReport } from "./trace-generator.js";
+import { getNetworkRequestList} from './scriptTests/networkRequest.js'
 
 export const runPerformanceCheck = async (url) => {
     const browser = await puppeteer.launch();
@@ -35,6 +36,10 @@ export const runPerformanceCheck = async (url) => {
     // Generating Code coverage report
     console.log("Generating code covereage report");
     await getCodeCoverageReport(url);
+
+    // Monitoring all network requests
+    console.log("Monitoring all requests");
+    getNetworkRequestList(url);
 
 
     return true;

@@ -1,7 +1,7 @@
 import puppeteer from "puppeteer";
 import fs from 'fs'; // Import the 'fs' module for file system access
 
-(async () => {
+export const getNetworkRequestList = async (url) => {
   const browser = await puppeteer.launch({});
   const networkData = []; // Array to store network request data
 
@@ -21,7 +21,7 @@ import fs from 'fs'; // Import the 'fs' module for file system access
       // Optional: request.continue();  // uncomment to allow requests
     });
 
-    await page.goto('https://rtcamp.com/');
+    await page.goto(url);
 
     // Save network data to a JSON file after page loads
     await fs.writeFile('./results/network_data.json', JSON.stringify(networkData, null, 2), (err) => {
@@ -36,4 +36,4 @@ import fs from 'fs'; // Import the 'fs' module for file system access
   } finally {
     await browser.close();
   }
-})();
+};

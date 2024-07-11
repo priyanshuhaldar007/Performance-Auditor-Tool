@@ -4,6 +4,8 @@ export async function generateTraceReport(url, throttleFlag, outputPath) {
     const browser = await puppeteer.launch();
     const page = await browser.newPage();
 
+    page.setDefaultTimeout(100000);
+
     if(throttleFlag){
         console.log('Throttling CPU by 4x and Network to slow 3G');
         // For throttling CPU and Network before generating trace report
@@ -41,7 +43,7 @@ export async function generateTraceReport(url, throttleFlag, outputPath) {
 // const args = process.argv.slice(2);
 // const url = args[0];
 // const throttleFlag = args[1].includes('true');
-// const outputPath = './results/trace.json';
+// const outputPath = './results/json/trace.json';
 
 // if (!url) {
 //     console.error('Please provide a URL.');

@@ -5,10 +5,11 @@ import { PredefinedNetworkConditions } from "puppeteer";
 import pti from "puppeteer-to-istanbul";
 import lighthouse from "lighthouse";
 import { URL } from "url";
-import { writeFile } from "fs/promises";
+import { writeFile, readFile } from "fs/promises";
 import { generateReport } from "lighthouse";
 import { generateTraceReport } from "./trace-generator.js";
-import { getNetworkRequestList} from './scriptTests/networkRequest.js'
+import { getNetworkRequestList} from './scripts/networkRequest.js'
+import { read } from "fs";
 
 export const runPerformanceCheck = async (url) => {
     const browser = await puppeteer.launch();
@@ -27,11 +28,14 @@ export const runPerformanceCheck = async (url) => {
     console.log("Lighthouse Performance check initiating");
     await runLighthouseCheck(url, browser, page);
 
-    // console.log("Performance Check initiated");
-    // generateTraceReport(url, "true", "./results/trace.json");
+    console.log("Performance Check initiated");
+    generateTraceReport(url, "true", "./results/json/trace.json");
 
     console.log("Running lhr test with no JS");
     await generateNoJsLighthouseReport(url);
+
+    console.log("Running lhr test with no 3P JS");
+    await generateNo3pJsLighthouseReport(url);
 
     // Generating Code coverage report
     console.log("Generating code covereage report");
@@ -43,6 +47,65 @@ export const runPerformanceCheck = async (url) => {
 
 
     return true;
+};
+
+const generateNo3pJsLighthouseReport = async (url) =>{
+    const browser = await puppeteer.launch({});
+    const page = await browser.newPage();
+
+    const _3pData = await readFile('./results/json/network_data_3p.json');
+    const parsed3pData = JSON.parse(_3pData);
+
+    const _3pURL = parsed3pData.map(item => item.url);
+
+
+    page.setDefaultTimeout(100000);
+
+    // Block all JS requests
+    try {
+        page.setRequestInterception(true);
+        page.on("request", (request) => {
+            if (_3pURL.includes(request.url())) {
+                request.abort();
+            } else {
+                request.continue();
+            }
+        });
+
+        await page.goto(url);
+
+        // Defining lighthouse flags
+        const lighthouseOptions = {
+            port: new URL(browser.wsEndpoint()).port,
+            // throttling: {
+            //     rttMs: 150,
+            //     throughputKbps: 1638.4,
+            //     cpuSlowdownMultiplier: 6,
+            // },
+            // throttlingMethod: "devtools",
+        };
+
+        const { lhr } = await lighthouse(url, lighthouseOptions, undefined, page);
+
+        // Saving report in JSON format
+        console.log("\nPerformance check completed successfully");
+        await saveJSONReport(lhr, "./results/json/lighthouse-report-no3pJs.json");
+
+        const htmlReport = generateReport(lhr, "html");
+        await writeFile(
+            "./views/lighthouse-report-no3pJs.html",
+            htmlReport,
+            function (err) {
+                if (err) throw err;
+            }
+        );
+
+        console.log("report saved successfully");
+    } catch (err) {
+        console.log(err);
+    }
+
+    await browser.close(); // Close after Lighthouse analysis
 };
 
 const generateNoJsLighthouseReport = async (url) => {
@@ -64,7 +127,7 @@ const generateNoJsLighthouseReport = async (url) => {
 
         await page.goto(url);
 
-        // **Run Lighthouse Analysis**
+        // Defining lighthouse flags
         const lighthouseOptions = {
             port: new URL(browser.wsEndpoint()).port,
             // throttling: {
@@ -76,6 +139,10 @@ const generateNoJsLighthouseReport = async (url) => {
         };
 
         const { lhr } = await lighthouse(url, lighthouseOptions, undefined, page);
+
+        // Saving report in JSON format
+        console.log("\nPerformance check completed successfully");
+        await saveJSONReport(lhr, "./results/json/lighthouse-report-noJS.json");
 
         const htmlReport = generateReport(lhr, "html");
         await writeFile(
@@ -109,6 +176,9 @@ const runLighthouseCheck = async (url, browser, page) => {
 
     await browser.close();
 
+    // get3p scripts
+    get3PScripts(lhr.audits['network-requests']);
+
     const htmlReport = generateReport(lhr, "html");
     await writeFile(
         "./views/lighthouse-report.html",
@@ -119,14 +189,14 @@ const runLighthouseCheck = async (url, browser, page) => {
     );
 
     console.log("\nPerformance check completed successfully");
-    await saveJSONReport(lhr, "./results/lighthouse-report.json");
+    await saveJSONReport(lhr, "./results/json/lighthouse-report.json");
 
     return 1;
 };
 
 const saveJSONReport = async (report, fileName) => {
     await writeFile(fileName, JSON.stringify(report, null, 2));
-    console.log(`✅ Performance report saved to ${fileName}`);
+    console.log(`✅ Report saved to ${fileName}`);
 };
 
 /**
@@ -137,7 +207,7 @@ const saveJSONReport = async (report, fileName) => {
  */
 const saveScripts = async (
     page,
-    outputFile = "./results/scraped_scripts.json"
+    outputFile = "./results/json/scraped_scripts.json"
 ) => {
     // Get all script tags and their innerHTML (content)
     const scripts = await page.evaluate(() => {
@@ -197,17 +267,17 @@ const getCodeCoverageReport = async (url) => {
     ]);
 
     // saving JS code coverage report
-    saveJSONReport(jsCoverage, "./results/jsCoverage-report.json");
+    saveJSONReport(jsCoverage, "./results/json/jsCoverage-report.json");
 
     // saving CSS code coverage report
-    saveJSONReport(cssCoverage, "./results/cssCoverage-report.json");
+    saveJSONReport(cssCoverage, "./results/json/cssCoverage-report.json");
 
     const coverage = [
         ...addCodeSize(jsCoverage, "JS"),
         ...addCodeSize(cssCoverage, "CSS"),
     ];
 
-    saveJSONReport(coverage, "./results/coverage-report.json");
+    saveJSONReport(coverage, "./results/json/coverage-report.json");
 
     // Generating coverage report using puppeteer-to-istanbul library
     pti.write([...jsCoverage, ...cssCoverage], {
@@ -242,4 +312,33 @@ const addCodeSize = (coverageReport, reportType) => {
     }
 
     return coverageReport;
+};
+
+
+/**
+ * Get 3P scripts from lhr.json
+ * 
+ * @param {object} lhr JSON format lhr report
+ */
+const get3PScripts = (networkRequestData) => {
+    const allRequests = networkRequestData.details.items;
+
+
+    // save all network requests
+    // fs.writeFile('./results/json/network_data_lhr.json', JSON.stringify(allRequests, null, 2), (err) => {
+    //     if (err) {
+    //       console.error('Error saving network data:', err);
+    //     } else {
+    //       console.log('Network data saved successfully to network_data.json');
+    //     }
+    //   });
+    saveJSONReport(allRequests,'./results/json/network_data_lhr.json');
+
+    const homeEntity = allRequests[0].entity;
+
+    const _3pRequests = allRequests.filter(request => request.entity!==homeEntity);
+
+
+    saveJSONReport(_3pRequests,'./results/json/network_data_3p.json');
+    // console.log(_3pRequests);
 };

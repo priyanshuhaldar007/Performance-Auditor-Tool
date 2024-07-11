@@ -18,7 +18,7 @@ app.engine('html', ejs.renderFile);
 
 app.get('/', async (req, res) => {
     try {
-        const data = await readFile('./results/scraped_scripts.json', 'utf8'); // Replace 'data.json' with your actual file path
+        const data = await readFile('./results/json/scraped_scripts.json', 'utf8'); // Replace 'data.json' with your actual file path
         const jsonData = JSON.parse(data); // Parse the JSON string
              
         res.render('index', {
@@ -37,17 +37,17 @@ app.get('/view-lighthouse-report',(req,res)=>{
 
 // sending scraped scripts JSON report
 app.get('/view-scripts',(req,res)=>{
-    res.sendFile('./results/scraped_scripts.json', { root: __dirname });
+    res.sendFile('./results/json/scraped_scripts.json', { root: __dirname });
 })
 
 // sending scraped scripts lighthouse JSON report
 app.get('/view-lighthouse-json', (req,res)=>{
-    res.sendFile('./results/lighthouse-report.json', { root: __dirname });
+    res.sendFile('./results/json/lighthouse-report.json', { root: __dirname });
 })
 
 app.get('/coverage-report', async (req,res)=>{
     try {
-        const data = await readFile('./results/coverage-report.json', 'utf8'); 
+        const data = await readFile('./results/json/coverage-report.json', 'utf8'); 
         const jsonData = JSON.parse(data); // Parse the JSON string
              
         res.render('coverage', {

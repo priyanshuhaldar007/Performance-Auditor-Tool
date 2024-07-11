@@ -82,6 +82,6 @@ const main = async () => {
     
 
 app.listen(8080,()=>{
-    console.log('express server running');
+    console.log('express server running on http://localhost:8080');
     main();
 })

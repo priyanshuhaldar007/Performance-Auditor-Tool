@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/flowbite.min.css" rel="stylesheet" />
+
+    <style>
+        td.w-500 {
+            width: 500px;
+            overflow-y: hidden;
+            /* height: 3rem !important; */
+            /* background: red; */
+        }
+
+        .used-part,
+        .unused-part {
+            position: relative;
+        }
+
+        .unused-part .unused-data {
+            content: attr(data-value);
+            position: absolute;
+            top: 0.5rem;
+            right: 0;
+            opacity: 0;
+            color: rgb(189, 56, 56);
+            ;
+        }
+
+        .used-part .used-data {
+            content: attr(data-value);
+            position: absolute;
+            top: -1rem;
+            left: 0;
+            opacity: 0;
+            width: 4rem;
+            color: rgb(55, 162, 244);
+            ;
+        }
+
+        .used-part:hover .used-data {
+            cursor: pointer;
+            opacity: 1;
+        }
+
+        /* .used-part:hover .used-data{
+            cursor: pointer;
+            opacity: 1;
+        } */
+        .unused-part:hover .unused-data {
+            opacity: 1;
+        }
+    </style>
+
+</head>
+
+<body>
+    <main>
+        <div class="jumbotron">
+            <h2 class="text-4xl font-extrabold text-center m-2">Coverage Report</h2>
+            <nav class="bg-white dark:bg-gray-900 w-full z-20 border-b border-gray-200 dark:border-gray-600 pb-4">
+                <div class="flex md:order-2 space-x-3 md:space-x-0 rtl:space-x-reverse justify-center gap-4">
+                    <a class="block py-2 px-3 text-white bg-blue-700 rounded md:bg-transparent md:text-blue-700 md:p-0 md:dark:text-blue-500"
+                        href="/view-scripts">View Json</a>
+                    <a class="block py-2 px-3 text-white bg-blue-700 rounded md:bg-transparent md:text-blue-700 md:p-0 md:dark:text-blue-500"
+                        href="/view-lighthouse-report">View Lighthouse Report</a>
+                    <a class="block py-2 px-3 text-white bg-blue-700 rounded md:bg-transparent md:text-blue-700 md:p-0 md:dark:text-blue-500"
+                        href="/view-lighthouse-json">View Lighthouse Json</a>
+                </div>
+            </nav>
+
+            <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
+                <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
+                    <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+                        <tr>
+                            <th scope="col" class="px-6 py-3">Sl. No.</th>
+                            <th scope="col" class="px-6 py-3">Resource URL</th>
+                            <th scope="col" class="px-6 py-3">Resource Content</th>
+                            <th scope="col" class="px-6 py-3">Resource Size</th>
+                            <th scope="col" class="px-6 py-3">Unused Bytes</th>
+                            <th scope="col" class="px-6 py-3">Coverage</th>
+                            <th style="display: flex;" scope="col" class="px-6 py-3"> 
+                                <span style="transform: scale(0.7) ;line-height: 3rem;">
+                                    Resource Type
+                                </span>
+                                <select name="filter" id="filter"  onchange="filterScriptData(this.value)">
+                                    <option value="JS">JS</option>
+                                    <option value="CSS">CSS</option>
+                                    <option value="ALL" selected>ALL</option>
+                                </select></th>
+                        </tr>
+                    </thead>
+                    <tbody id="data-table-body">
+                        <!-- <% for (const [index, script] of jsonData.entries()) { %>
+                        <tr
+                            class=" h-10 bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
+                            <td class="break-all px-6 py-4"><%= index %></td>
+                            <td class="break-all px-6 py-4 w-500"><%= script.url %></td>
+                            <td class="break-all px-6 py-4"><%= script.text %></td>
+                            <td height="100" class="break-all px-6 py-4 w-500"><%= script.entryCoverage.totalBytes %>
+                            </td>
+                            <td height="100" class="break-all px-6 py-4 w-500"><%= script.entryCoverage.unusedBytes %>
+                            </td>
+                            <td class="break-all px-6 py-4">
+                                <div data-value="" class="unused-part" style="background:rgb(189, 56, 56);">
+                                    <span
+                                        class="unused-data"><%= parseFloat((script.entryCoverage.unusedBytes/script.entryCoverage.totalBytes)*100).toFixed(2) %>%</span>
+                                    <div data-value="" class="used-part"
+                                        style="background:rgb(55, 162, 244); height:10px; width: <%= (script.entryCoverage.usedBytes/script.entryCoverage.totalBytes)*100 %>%">
+                                        <span
+                                            class="used-data"><%= parseFloat((script.entryCoverage.usedBytes/script.entryCoverage.totalBytes)*100).toFixed(2) %>%</span>
+                                    </div>
+                                </div>
+                            </td>
+                            <td height="100" class=" text-center break-all px-6 py-4 w-500"><%= script.resourceType %></td>
+                        </tr>
+                        <% } %> -->
+                    </tbody>
+                </table>
+            </div>
+    </main>
+    <script>
+        console.log('reaching');
+        const data = <%- JSON.stringify(jsonData) %>;
+
+        function filterScriptData(type){
+            const tableBody = document.getElementById('data-table-body');
+
+            tableBody.innerHTML = '';
+
+            const filteredData = (type === "ALL") ? data : data.filter(item => item.resourceType === type);
+
+            let index = 0;
+
+            // Creating rows for table
+            filteredData.forEach((script) => {
+                // console.log(script);
+                index++;
+                const tableRow = document.createElement("tr");
+                tableRow.innerHTML = `<tr
+                            class=" h-10 bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
+                            <td class="break-all px-6 py-4">${ index }</td>
+                            <td class="break-all px-6 py-4 w-500">${ script.url }</td>
+                            <td class="break-all px-6 py-4">${ script.text.substring(0, 3) }...</td>
+                            <td height="100" class="break-all px-6 py-4 w-500">${ script.entryCoverage.totalBytes }
+                            </td>
+                            <td height="100" class="break-all px-6 py-4 w-500">${ script.entryCoverage.unusedBytes }
+                            </td>
+                            <td class="break-all px-6 py-4">
+                                <div data-value="" class="unused-part" style="background:rgb(189, 56, 56);">
+                                    <span
+                                        class="unused-data">${ parseFloat((script.entryCoverage.unusedBytes/script.entryCoverage.totalBytes)*100).toFixed(2) }%</span>
+                                    <div data-value="" class="used-part"
+                                        style="background:rgb(55, 162, 244); height:10px; width: ${ (script.entryCoverage.usedBytes/script.entryCoverage.totalBytes)*100 }%">
+                                        <span
+                                            class="used-data">${ parseFloat((script.entryCoverage.usedBytes/script.entryCoverage.totalBytes)*100).toFixed(2) }%</span>
+                                    </div>
+                                </div>
+                            </td>
+                            <td height="100" class=" text-center break-all px-6 py-4 w-500">${ script.resourceType }</td>
+                        </tr>`;
+
+                        tableBody.appendChild(tableRow);
+            });
+
+
+        }
+        
+        filterScriptData('ALL');
+
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/flowbite.min.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Filtered JSON Data Table</title>
+  <script>
+    function filterByType(type) {
+      const tableBody = document.getElementById("data-table-body");
+      tableBody.innerHTML = ""; // Clear existing content
+
+      const filteredData = (type === "all") ? data : data.filter(item => item.type === type);
+
+      filteredData.forEach(item => {
+        const tableRow = document.createElement("tr");
+        tableRow.innerHTML = `
+          <td>${item.name}</td>
+          <td>${item.description}</td>
+          <td>${item.type}</td>
+        `;
+        tableBody.appendChild(tableRow);
+      });
+    }
+  </script>
+</head>
+<body>
+  <h1>Filtered JSON Data Table</h1>
+
+  <select id="filter-select" onchange="filterByType(this.value)">
+    <option value="all">All Types</option>
+    <option value="type1">Type 1</option>
+    <option value="type2">Type 2</option>
+    <option value="type3">Type 3</option>
+    </select>
+
+  <table id="data-table">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Description</th>
+        <th>Type</th>
+      </tr>
+    </thead>
+    <tbody id="data-table-body">
+      </tbody>
+  </table>
+
+  <script>
+    const data = <%- JSON.stringify(jsonData) %>; // Pass your JSON data here
+    filterByType("all"); // Initially display all data
+  </script>
+</body>
+</html>

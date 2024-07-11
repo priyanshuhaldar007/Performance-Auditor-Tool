@@ -1,4 +1,5 @@
 node_modules
 ./results/*
-./views/lighthouse-report.html
+./views/lighthouse-report*.html
 .DS_Store
+.nyc_output

@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/flowbite.min.css" rel="stylesheet"/>
+
+    <style>
+        td.w-500{
+            width: 500px;
+            overflow-y: hidden;
+            /* height: 3rem !important; */
+            /* background: red; */
+        }
+    </style>
+
+</head>
+<body>
+    <main>
+        <div class="jumbotron">
+          <h2 class="text-4xl font-extrabold text-center m-2">Script List</h2>
+          <nav class="bg-white dark:bg-gray-900 w-full z-20 border-b border-gray-200 dark:border-gray-600 pb-4">
+            <div class="flex md:order-2 space-x-3 md:space-x-0 rtl:space-x-reverse justify-center gap-4">
+            <a class="block py-2 px-3 text-white bg-blue-700 rounded md:bg-transparent md:text-blue-700 md:p-0 md:dark:text-blue-500" href="/view-scripts">View Json</a>
+            <a class="block py-2 px-3 text-white bg-blue-700 rounded md:bg-transparent md:text-blue-700 md:p-0 md:dark:text-blue-500" href="/view-lighthouse-report">View Lighthouse Report</a>
+            <a class="block py-2 px-3 text-white bg-blue-700 rounded md:bg-transparent md:text-blue-700 md:p-0 md:dark:text-blue-500" href="/view-lighthouse-json">View Lighthouse Json</a>
+          </div>
+          </nav>
+          
+          <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
+            <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
+                <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+                    <tr>
+                <th scope="col" class="px-6 py-3">Sl. No.</th>
+                <th scope="col" class="px-6 py-3">Script Src</th>
+                <th scope="col" class="px-6 py-3">Script Type</th>
+                <th scope="col" class="px-6 py-3">Script Contents</th>
+                <th scope="col" class="px-6 py-3">Script Execution Type</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% for (const [index, script] of jsonData.entries()) { %>
+                <tr class=" h-10 bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
+                    <td class="break-all px-6 py-4"><%= index %></td>
+                    <td class="break-all px-6 py-4 w-500"><%= script.scriptSrc %></td>
+                    <td class="break-all px-6 py-4"><%= script.scriptType %></td>
+                    <td height="100" class="break-all px-6 py-4 w-500">
+                      <button data-tooltip-target='tooltip-light-<%= index %>'>
+                        <%= script.scriptContents.substring(0,50)%> <% if (script.scriptContents.length > 0) { %> ... <% } %>
+
+                      </button>
+                      <div id="tooltip-light-<%= index %>" role="tooltip" class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-lg shadow-sm opacity-0 tooltip">
+                        <%= script.scriptContents %>
+                        <div class="tooltip-arrow" data-popper-arrow></div>
+                      </div>
+                      
+                    </td>
+                    <td class="break-all px-6 py-4"><%= script.scriptExecutionType %></td>
+              </tr>
+              <% } %>
+            </tbody>
+          </table>
+          <%= dummy %>
+        </div>
+      </main>
+      <h1>Website Performance Tester</h1>
+    <form action="/get-url" method="post">
+        <label for="url">Website URL:</label>
+        <input type="text" name="url" id="url" required>
+        <button type="submit">Run Tests</button>
+    </form>
+    <p id="message"></p>
+  <script>
+    const form = document.querySelector('form');
+    const message = document.getElementById('url');
+
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+
+      console.log(message.value);
+
+      try {
+        const response = await fetch('/get-url', {
+          method: 'POST',
+          headers: {
+            "Content-Type": "application/json",
+            },
+          body: JSON.stringify({url:message.value}),
+        });
+
+        const data = await response.json();
+        message.textContent = data.message;
+      } catch (error) {
+        message.textContent = 'An error occurred. Please try again.';
+      }
+    });
+  </script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/flowbite.min.js"></script>
+</body>
+</html>

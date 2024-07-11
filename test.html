@@ -1,0 +1,97 @@
+<!doctype html>
+<html>
+<head>
+
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/flowbite.min.css" rel="stylesheet"/>
+</head>
+<body>
+  <div class="accordion">
+    <details>
+      <summary>Sesame snaps</summary>
+      <div> ... </div>
+    </details>
+    <details>
+      <summary>Chocolate bar</summary>
+      <div>...</div>
+    </details>
+    <details>
+      <summary>Donut gummies</summary>
+      <div>...</div>
+    </details>
+   </div>
+<img id="image0" src="https://www.w3.org/Icons/w3c_main.png" />
+
+<button data-tooltip-target="tooltip-light-1">Light tooltip</button>
+
+<div id="tooltip-light-1" role="tooltip" class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-lg shadow-sm opacity-0 tooltip">
+    Tooltip content
+    <div class="tooltip-arrow" data-popper-arrow></div>
+</div>
+
+<br>
+<br>
+<br>
+<br>
+
+<button data-tooltip-target="tooltip-light-2">Light tooltip</button>
+
+<div id="tooltip-light-2" role="tooltip" class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-lg shadow-sm opacity-0 tooltip">
+    Tooltip content
+    <div class="tooltip-arrow" data-popper-arrow></div>
+</div>
+
+<!-- <script>
+// Know when the entry types we would like to use are not supported.
+function detectSupport(entryTypes) {
+  for (const entryType of entryTypes) {
+    if (!PerformanceObserver.supportedEntryTypes.includes(entryType)) {
+      // Indicate to client-side analytics that |entryType| is not supported.
+    }
+  }
+}
+detectSupport(["resource", "mark", "measure"]);
+const userTimingObserver = new PerformanceObserver(list => {
+  list
+    .getEntries()
+    // Get the values we are interested in
+    .map(({ name, entryType, startTime, duration }) => {
+      const obj = {
+        "Duration": duration,
+        "Entry Type": entryType,
+        "Name": name,
+        "Start Time": startTime,
+      };
+      return JSON.stringify(obj, null, 2);
+    })
+    // Display them to the console.
+    .forEach(console.log);
+  // Disconnect after processing the events.
+  userTimingObserver.disconnect();
+});
+// Subscribe to new events for User-Timing.
+userTimingObserver.observe({entryTypes: ["mark", "measure"]});
+const resourceObserver = new PerformanceObserver(list => {
+  list
+    .getEntries()
+    // Get the values we are interested in
+    .map(({ name, startTime, fetchStart, responseStart, responseEnd }) => {
+      const obj = {
+        "Name": name,
+        "Start Time": startTime,
+        "Fetch Start": fetchStart,
+        "Response Start": responseStart,
+        "Response End": responseEnd,
+      };
+      return JSON.stringify(obj, null, 2);
+    })
+    // Display them to the console.
+    .forEach(console.log);
+  // Disconnect after processing the events.
+  resourceObserver.disconnect();
+});
+// Retrieve buffered events and subscribe to newer events for Resource Timing.
+resourceObserver.observe({type: "resource", buffered: true});
+</script> -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/flowbite.min.js"></script>
+</body>
+</html>

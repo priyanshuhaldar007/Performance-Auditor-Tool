@@ -1,5 +1,5 @@
 node_modules
-results/*
+results/coverage
 views/lighthouse-report*.html
 .DS_Store
 .nyc_output

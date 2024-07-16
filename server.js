@@ -8,6 +8,7 @@ import { runPerformanceCheck } from './performance-check.js';
 
 const app = express();
 app.use(express.json());
+// app.use('/results',express.static(path.join(path.resolve(), '/results/')))
 
 app.set('port', 8080);
 const __filename = fileURLToPath(import.meta.url); // get the resolved path to the file
@@ -16,7 +17,8 @@ app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
 app.engine('html', ejs.renderFile);
 
-app.get('/', async (req, res) => {
+/*
+app.get('/scrapedScripts', async (req, res) => {
     try {
         const data = await readFile('./results/json/scraped_scripts.json', 'utf8'); // Replace 'data.json' with your actual file path
         const jsonData = JSON.parse(data); // Parse the JSON string
@@ -57,7 +59,7 @@ app.get('/coverage-report', async (req,res)=>{
         console.error('Error reading JSON file:', error);
     }
 })
-
+*/
 app.post('/get-url', (req, res) => {
     const data = req.body.url;
     console.log(data);

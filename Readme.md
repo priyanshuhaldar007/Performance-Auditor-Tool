@@ -6,4 +6,4 @@
 
 - Clone the repository locally
 - Install all the packages
-- To generate report, run the following command `node server.js <url>`
+- To generate report, run the following command `node server.js <url>` or `npm run audit <url>`

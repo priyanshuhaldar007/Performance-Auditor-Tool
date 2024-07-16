@@ -64,8 +64,8 @@ export const runPerformanceCheck = async (url) => {
     await lowCodeCoverageLighthouseReport(browser, url, `./results/${resDir}`);
     
     // Monitoring all network requests
-    console.log("Monitoring all requests");
-    getNetworkRequestList(browser, url, `./results/${resDir}/jsonReports/`);
+    // console.log("Monitoring all requests");
+    // getNetworkRequestList(browser, url, `./results/${resDir}/jsonReports/`);
 
     browser.close();
 

@@ -1,25 +1,16 @@
 #!/usr/bin/env node
 
 import puppeteer from "puppeteer";
-import path from "path";
-import { PredefinedNetworkConditions } from "puppeteer";
-import pti from "puppeteer-to-istanbul";
-import lighthouse from "lighthouse";
-import { URL } from "url";
-import { writeFile, readFile, mkdir } from "fs/promises";
-import { generateReport } from "lighthouse";
 import { generateTraceReport } from "./scripts/trace-generator.js";
-// import { getNetworkRequestList } from "./scripts/networkRequest.js";
-import {saveHTMLReport, saveJSONReport} from './scripts/saveScripts.js';
 import { getScrapedScripts } from "./scripts/puppeteerScripts";
 import { generateNo3pJsLighthouseReport, generateNoJsLighthouseReport, generateNoRenderBlockingLighthouseReport, lowCodeCoverageLighthouseReport, runLighthouseCheck, } from "./scripts/lighthouseTestScripts.js";
 import { getCodeCoverageReport } from "./scripts/puppeteerScripts";
 import { getNetworkRequestList } from "./scripts/puppeteerScripts";
+import { mkdir } from 'fs/promises';
 
 let TestScenarios = {
-    noRenderBlocking: 1,
+    noRenderBlocking: 0,
 };
-const __dirname = path.resolve();
 
 export const runPerformanceCheck = async (url) => {
 
@@ -69,7 +60,7 @@ export const runPerformanceCheck = async (url) => {
 
     browser.close();
 
-    return true;
+    return [`${resDir}`,];
 };
 
 /**

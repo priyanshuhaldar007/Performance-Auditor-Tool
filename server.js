@@ -8,7 +8,7 @@ import { runPerformanceCheck } from './performance-check.js';
 
 const app = express();
 app.use(express.json());
-// app.use('/results',express.static(path.join(path.resolve(), '/results/')))
+app.use(express.static('./results'))
 
 app.set('port', 8080);
 const __filename = fileURLToPath(import.meta.url); // get the resolved path to the file
@@ -75,8 +75,17 @@ const main = async () => {
 
     console.log(`Running performance check for ${url}`);
     try {
-        await runPerformanceCheck(url);
+        const resultDir= await runPerformanceCheck(url);
+        console.log(`Audits completed successfully, results are stored in ${resultDir}`);
+        console.log(`To see the HTML reports Links are as follow:
+            \n- Normal run lhr report: http://localhost:8080/${resultDir}/htmlReports/lighthouse-report.html
+            \n- No JS run lhr report: http://localhost:8080/${resultDir}/htmlReports/lighthouse-report-NoJS.html
+            \n- No 3P JS run lhr report: http://localhost:8080/${resultDir}/htmlReports/lighthouse-report-no3pJs.html
+            \n- Low Code Coverage disabled run lhr report: http://localhost:8080/${resultDir}/htmlReports/lighthouse-report-lowCodeCoverage.html
+            \n- Render Blocking resources disabled run lhr report: http://localhost:8080/${resultDir}/htmlReports/lighthouse-report-NoRenderBlocking.html
+            `)
 
+        // process.exit(1);
     } catch (error) {
         console.error("An error occurred:", error);
     }  

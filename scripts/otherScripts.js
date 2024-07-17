@@ -27,9 +27,11 @@ export const getRenderBlockBlockingResources = (renderBlockBlockingResources, re
     const blockingResources = renderBlockBlockingResources.details.items;
 
     if (0 === blockingResources.length) {
-        TestScenarios.noRenderBlocking = 0;
         console.log("No render blocking resources");
         return;
+    }
+    else{
+        TestScenarios.noRenderBlocking = 1;
     }
 
     saveJSONReport(
